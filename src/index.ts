@@ -3,7 +3,7 @@
  * WAI-ARIA compliant disclosure pattern implementation in TypeScript.
  * Using the <details> and <summary> element.
  *
- * @version 2.0.14
+ * @version 2.0.15
  * @author Yusuke Kamiyamane
  * @license MIT
  * @copyright Copyright (c) Yusuke Kamiyamane
@@ -153,28 +153,28 @@ export class Disclosure {
     this.#eventController?.abort();
     this.#eventController = null;
 
-    this.#observers.forEach((observer) => {
+    for (const observer of this.#observers) {
       observer.disconnect();
-    });
+    }
 
     this.#observers.length = 0;
     this.#cleanupRovingTabIndex?.();
     this.#cleanupRovingTabIndex = null;
     !force && (await this.#waitAnimationsFinish());
 
-    this.#contentElements.forEach((content) => {
+    for (const content of this.#contentElements) {
       force && this.#bindings.get(content)?.animation?.finish();
       this.#onContentAnimationFinish(content);
-    });
+    }
 
     this.#animationController?.abort();
     this.#animationController = null;
 
-    this.#detailsElements.forEach((details) => {
-      ['name', 'open'].forEach((name) => {
+    for (const details of this.#detailsElements) {
+      for (const name of ['name', 'open']) {
         details.removeAttribute(`data-disclosure-${name}`);
-      });
-    });
+      }
+    }
 
     this.#detailsElements.length = 0;
     utils.restoreAttributes(this.#summaryElements);
@@ -282,9 +282,9 @@ export class Disclosure {
       details.open = false;
     }
 
-    ['block-size', 'overflow'].forEach((name) => {
+    for (const name of ['block-size', 'overflow']) {
       content.style.removeProperty(name);
-    });
+    }
   }
 
   #toggle(
@@ -421,10 +421,10 @@ export class Disclosure {
   async #waitAnimationsFinish(): Promise<void> {
     const promises: Promise<void>[] = [];
 
-    this.#contentElements.forEach((content) => {
+    for (const content of this.#contentElements) {
       const animation = this.#bindings.get(content)?.animation;
       animation && promises.push(waitAnimationFinish(animation));
-    });
+    }
 
     await Promise.allSettled(promises);
   }
